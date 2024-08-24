@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Executive Plan Form</title>
+    <link rel="stylesheet" href="/public/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Executive Plan Form</h1>
+
+        <!-- Collection Selection -->
+        <label for="collectionSelect">Select Collection:</label>
+        <select id="collectionSelect" name="collectionSelect" onchange="handleCollectionChange()">
+            <option value="">Select a collection</option>
+        </select>
+
+        <!-- Collection Data Display -->
+        <div id="collectionData"></div>
+
+        <!-- Dynamic Form Section -->
+        <form id="dynamicForm"></form>
+
+        <!-- Buttons -->
+        <div class="buttons">
+            <button type="button" onclick="clearForm()">Clear</button>
+        </div>
+    </div>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="/public/scripts.js"></script>
+</body>
+</html>
+<!--cd C:\Users\markb\Desktop\software-project-main-->
