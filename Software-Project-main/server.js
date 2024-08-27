@@ -75,11 +75,11 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// WebSocket connection and event handling
 io.on('connection', (socket) => {
   console.log('A user connected');
 
-  // Listen for new collection events
+ 
+
   socket.on('newCollection', (collectionName) => {
     console.log('New collection added:', collectionName);
     io.emit('updateCollections'); // Notify all clients to fetch updated collections
