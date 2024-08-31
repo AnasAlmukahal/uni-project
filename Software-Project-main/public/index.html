@@ -10,25 +10,40 @@
     <div class="container">
         <h1>Executive Plan Form</h1>
 
-        <!-- Collection Selection -->
+
         <label for="collectionSelect">Select Collection:</label>
         <select id="collectionSelect" name="collectionSelect" onchange="handleCollectionChange()">
             <option value="">Select a collection</option>
         </select>
 
-        <!-- Collection Data Display -->
+
         <div id="collectionData"></div>
 
-        <!-- Dynamic Form Section -->
+        <div id="formContainer"></div>
+
+
         <form id="dynamicForm"></form>
 
-        <!-- Buttons -->
+
         <div class="buttons">
             <button type="button" onclick="clearForm()">Clear</button>
-        </div>
+            <button id="generateKPIButton">Performance Output</button>
+            <button type="button" id="generateGraphButton">Graphing Output</button>
+            <button id="generateMilestoneButton">Generate Milestone</button>
+            <button id="submitFeedbackButton">Submit Feedback</button>
+            <textarea id="feedbackInput" placeholder="Enter your feedback here..."></textarea>
+            
+        </div> 
     </div>
+    <div id="milestoneContainer"></div>
+
+    
+    
+    <canvas id="kpiChart"width="1" height="1"></canvas>
+    <canvas id="dataGraph" width="10" height="15"></canvas>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="/public/scripts.js"></script>
 </body>
 </html>
-<!--cd C:\Users\markb\Desktop\software-project-main-->
