@@ -65,3 +65,20 @@ button {
 button:hover {
     background-color: #0056b3;
 }
+#generateKPIButton {
+    padding: 10px 20px; /* Adjusts the padding inside the button */
+    font-size: 16px;    /* Adjusts the font size */
+    border-radius: 4px; /* Rounds the corners */
+    background-color: #4CAF50; /* Button background color */
+    color: white;       /* Button text color */
+    border: none;       /* Removes the border */
+    cursor: pointer;    /* Changes cursor to pointer on hover */
+    width: auto;        /* Sets the width of the button to fit the text */
+}
+
+#generateKPIButton:hover {
+    background-color: #45a049; /* Changes background color on hover */
+}
+
+    background-color: #0056b3;
+}
