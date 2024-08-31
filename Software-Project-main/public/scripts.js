@@ -1,8 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
   fetchCollections();
+  initializeKPIButton();
+  initializeGraphButton();
+  initializeMilestoneButton();
+  initializeFeedbackButton();
 });
 document.getElementById('dynamicForm').addEventListener('submit', submitForm);
-
 function fetchCollections() {
   console.log('Fetching collections...');
   axios.get('http://127.0.0.1:5500/api/collections')
@@ -129,7 +132,7 @@ function generateFormFields(schema) {
 }
 
 function submitForm(event) {
-  event.preventDefault();  // Prevent default form submission behavior
+  event.preventDefault(); 
   const formData = new FormData(document.getElementById('dynamicForm'));
   const data = Object.fromEntries(formData.entries());
   const collectionName = document.getElementById('collectionSelect').value;
@@ -137,7 +140,7 @@ function submitForm(event) {
   axios.post(`http://127.0.0.1:5500/api/collection-data/${collectionName}`, data)
     .then(response => {
       alert('Data submitted successfully!');
-      fetchCollectionData(collectionName);  // Refresh the displayed data
+      fetchCollectionData(collectionName);
     })
     .catch(error => {
       console.error('Error submitting data:', error);
@@ -159,4 +162,265 @@ function generateEmptyForm(collectionName) {
     </div>
     <button type="button" onclick="submitForm()">Submit</button>
   `;
+}
+//-----KPI-----------
+function initializeKPIButton() {
+  document.getElementById('generateKPIButton').addEventListener('click', generateKPIChart);
+}
+async function generateKPIChart() {
+  const collectionName = document.getElementById('collectionSelect').value;
+  if (!collectionName) {
+    alert('Please select a collection');
+    return;
+  }
+
+  try {
+    const response = await axios.get(`http://127.0.0.1:5500/api/kpi/${collectionName}`);
+    const contentType = response.headers['content-type'];
+
+    if (contentType && contentType.includes('text/html')) {
+      console.error('Received HTML instead of JSON:', response.data);
+      alert('Unexpected HTML response. Check the server endpoint.');
+      return;
+    }
+
+    const kpiData = response.data;
+    console.log('Received KPI Data:', kpiData);
+
+    if (!kpiData || Object.keys(kpiData).length === 0) {
+      alert('Invalid KPI data received');
+      return;
+    }
+
+    const ctx = document.getElementById('kpiChart').getContext('2d');
+
+   
+    if (window.kpiChartInstance) {
+      window.kpiChartInstance.destroy();
+    }
+
+    // create new chart
+    window.kpiChartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['Collection Retrieval Time', 'Document Fetch Time', 'Form Submission Rate', 'API Error Rate'],
+        datasets: [{
+          label: 'KPI Values',
+          data: [
+            kpiData.collectionRetrievalTime,
+            kpiData.documentFetchTime,
+            kpiData.formSubmissionRate,
+            kpiData.apiErrorRate
+          ],
+          backgroundColor: [
+            'rgba(75, 192, 192, 0.2)',
+            'rgba(153, 102, 255, 0.2)',
+            'rgba(255, 159, 64, 0.2)',
+            'rgba(255, 99, 132, 0.2)'
+          ],
+          borderColor: [
+            'rgba(75, 192, 192, 1)',
+            'rgba(153, 102, 255, 1)',
+            'rgba(255, 159, 64, 1)',
+            'rgba(255, 99, 132, 1)'
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: {
+            beginAtZero: true
+          },
+          y: {
+            beginAtZero: true
+          }
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error('Error fetching KPI data:', error);
+    alert('Error fetching KPI data');
+  }
+}
+
+//------------graph output-------------
+
+document.getElementById('dynamicForm').addEventListener('submit', submitForm);
+function initializeGraphButton() {
+  document.getElementById('generateGraphButton').addEventListener('click', generateGraphFromForm);
+}
+
+function generateGraphFromForm() {
+  const formData = new FormData(document.getElementById('dynamicForm'));
+  const data = Object.fromEntries(formData.entries());
+
+  if (Object.keys(data).length === 0) {
+    alert('No data to graph. Please submit data first.');
+    return;
+  }
+
+  generateGraphOutput(data);
+}
+let currentChart = null; 
+
+async function generateGraphOutput() {
+  const collectionName = document.getElementById('collectionSelect').value;
+  if (!collectionName) {
+      alert('Please select a collection first.');
+      return;
+  }
+
+  try {
+      const response = await axios.get(`/api/graph/${collectionName}`);
+      const data = response.data;
+
+      if (!data || typeof data !== 'object') {
+          throw new Error('Invalid data format');
+      }
+
+      const labels = Object.keys(data);
+      const values = Object.values(data);
+
+      const ctx = document.getElementById('dataGraph').getContext('2d');
+
+
+      if (window.dataGraphChart) {
+          window.dataGraphChart.destroy();
+      }
+
+
+      window.dataGraphChart = new Chart(ctx, {
+          type: 'bar', 
+          data: {
+              labels: labels,
+              datasets: [{
+                  label: 'Data Values',
+                  data: values,
+                  backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                  borderColor: 'rgba(75, 192, 192, 1)',
+                  borderWidth: 1
+              }]
+          },
+          options: {
+              responsive: true,
+              maintainAspectRatio: false, 
+              scales: {
+                  x: {
+                      beginAtZero: true
+                  },
+                  y: {
+                      beginAtZero: true
+                  }
+              }
+          }
+      });
+  } catch (error) {
+      console.error('Error generating graph data:', error);
+      alert('Error generating graph data');
+  }
+}
+//generate graph output
+
+document.getElementById('generateGraphButton').addEventListener('click', generateGraphOutput);
+
+
+//get data for graph
+async function fetchGraphData(collectionName) {
+  try {
+      const response = await fetch(`/api/graph/${collectionName}`);
+      const data = await response.json();
+      if (Object.keys(data).length === 0) {
+          console.error('No data to graph.');
+          return;
+      }
+      generateGraph(data);
+  } catch (error) {
+      console.error('Error fetching graph data:', error);
+  }
+}
+
+
+document.getElementById('generateGraphButton').addEventListener('click', () => {
+  const collectionName = document.getElementById('collectionSelect').value;
+  if (collectionName) {
+      fetchGraphData(collectionName);
+  } else {
+      console.error('No collection selected.');
+  }
+});
+
+//milestone
+function initializeMilestoneButton() {
+  document.getElementById('generateMilestoneButton').addEventListener('click', generateMilestone);
+}
+
+async function generateMilestone() {
+  const collectionName = document.getElementById('collectionSelect').value;
+  if (!collectionName) {
+      alert('Please select a collection');
+      return;
+  }
+
+  try {
+      const response = await axios.get(`/api/milestone/${collectionName}`);
+      const milestoneData = response.data;
+      console.log('Milestone Data:', milestoneData);
+
+      // Display the milestone data in the UI
+      const milestoneContainer = document.getElementById('milestoneContainer');
+      milestoneContainer.innerHTML = `
+          <h3>Milestone Generated</h3>
+          <p>Total Documents: ${milestoneData.totalDocuments}</p>
+          <p>Satisfactory Documents: ${milestoneData.satisfactoryDocuments}</p>
+          <p>Documents Needing Revision: ${milestoneData.needsRevisionDocuments}</p>
+          <p>Satisfaction Percentage: ${milestoneData.satisfactionPercentage}%</p>
+      `;
+
+  } catch (error) {
+      console.error('Error generating milestone:', error);
+      alert('Error generating milestone');
+  }
+}
+
+
+//feedback handler
+function initializeFeedbackButton() {
+  document.getElementById('submitFeedbackButton').addEventListener('click', submitFeedback);
+}
+
+async function submitFeedback() {
+  const collectionName = document.getElementById('collectionSelect').value;
+  const feedbackText = document.getElementById('feedbackInput').value.trim();
+
+  if (!collectionName) {
+      alert('Please select a collection');
+      return;
+  }
+
+  if (!feedbackText) {
+      alert('Please enter your feedback');
+      return;
+  }
+
+  try {
+      const response = await axios.post(`http://127.0.0.1:5500/api/submitFeedback`, {
+          documentId: collectionName,
+          feedbackText: feedbackText,
+          submittedBy: 'User', 
+      });
+
+      if (response.status === 201) {
+          alert('Feedback submitted successfully');
+          document.getElementById('feedbackInput').value = ''; 
+      } else {
+          alert('Error submitting feedback');
+      }
+  } catch (error) {
+      console.error('Error submitting feedback:', error);
+      alert('Error submitting feedback');
+  }
 }
